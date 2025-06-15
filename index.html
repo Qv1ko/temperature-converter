@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temperature Converter</title>
+    <link rel="stylesheet" href="./styles/style.css" />
+    <script src="./scripts/script.js"></script>
+  </head>
+  <body>
+    <h2>Temperature Converter</h2>
+    <h4>Enter the temperature, select units and submit</h4>
+    <main>
+      <input
+        type="number"
+        name="inputTemp"
+        id="inputTemp"
+        placeholder="0.000"
+        step=".001"
+      />
+      <select name="selectFUnit" id="selectFUnit">
+        <option value="">From Unit</option>
+      </select>
+      <select name="selectTUnit" id="selectTUnit">
+        <option value="">To Unit</option>
+      </select>
+      <button disabled="disabled">Convert</button>
+    </main>
+    <p id="result">
+      <span id="fTemp"></span> <span id="fUnit"></span> is
+      <span id="tTemp"></span> <span id="tUnit"></span>
+    </p>
+  </body>
+</html>
