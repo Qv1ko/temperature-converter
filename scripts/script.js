@@ -3,11 +3,16 @@ let selectFUnit;
 let selectTUnit;
 let convertButton;
 
-const units = ["Fahrenheit", "Celsius", "Kelvin"];
+let result;
+let fTempText;
+let fUnitText;
+let tTempText;
+let tUnitText;
+
+const units = { fahrenheit: 0, celsius: 32, kelvin: 273.15 };
 
 let fTemp = null;
 let fUnit = null;
-let tTemp = null;
 let tUnit = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,22 +21,31 @@ document.addEventListener("DOMContentLoaded", () => {
   selectTUnit = document.getElementById("selectTUnit");
   convertButton = document.getElementById("convert");
 
-  loadSelects(units, [selectFUnit, selectTUnit]);
+  result = document.getElementById("result");
+  fTempText = document.getElementById("fTemp");
+  fUnitText = document.getElementById("fUnit");
+  tTempText = document.getElementById("tTemp");
+  tUnitText = document.getElementById("tUnit");
 
-  inputTemp.addEventListener("input", updateValue("ft", inputTemp.value));
-  selectFUnit.addEventListener("change", updateValue("fu", selectFUnit.value));
-  selectTUnit.addEventListener("change", updateValue("tu", selectTUnit.value));
-  convertButton.addEventListener("click", convert());
+  loadSelects([selectFUnit, selectTUnit]);
 
-  checkValues();
+  inputTemp.addEventListener("input", () => updateValue("ft", inputTemp.value));
+  selectFUnit.addEventListener("change", () =>
+    updateValue("fu", selectFUnit.value)
+  );
+  selectTUnit.addEventListener("change", () =>
+    updateValue("tu", selectTUnit.value)
+  );
+  convertButton.addEventListener("click", () => convert());
 });
 
-function loadSelects(units, selects) {
+function loadSelects(selects) {
   selects.forEach((select) => {
-    units.forEach((unit) => {
+    Object.keys(units).forEach((unit) => {
       const option = document.createElement("option");
       option.value = unit;
-      option.textContent = unit;
+      option.textContent =
+        String(unit).charAt(0).toUpperCase() + String(unit).slice(1);
       select.appendChild(option);
     });
   });
@@ -53,8 +67,75 @@ function updateValue(type, value) {
 }
 
 function checkValues() {
-  const valid = !isNaN(fTemp) && units.includes(fUnit) && units.includes(tUnit);
+  const valid =
+    isFinite(fTemp) &&
+    fTemp !== null &&
+    fTemp !== undefined &&
+    Object.keys(units).includes(fUnit) &&
+    Object.keys(units).includes(tUnit);
+
   convertButton.disabled = !valid;
+  convertButton.style.cursor = valid ? "pointer" : "default";
+
+  if (!valid) {
+    result.style.display = "none";
+  }
+
+  return valid;
 }
 
-function convert() {}
+function convert() {
+  if (checkValues()) {
+    fTempText.textContent = fTemp;
+    fUnitText.textContent = fUnit;
+    tUnitText.textContent = tUnit;
+
+    tTempText.textContent = convertResult();
+
+    result.style.display = "block";
+  } else {
+    result.style.display = "none";
+  }
+}
+
+function convertResult() {
+  let temp = fTemp;
+
+  if (fUnit !== tUnit) {
+    switch (fUnit) {
+      case "fahrenheit":
+        if (tUnit === "celsius") {
+          temp = fahrenheitToCelsius(temp);
+        } else if (tUnit === "kelvin") {
+          temp = fahrenheitToCelsius(temp) + units.kelvin;
+        }
+        break;
+
+      case "celsius":
+        if (tUnit === "fahrenheit") {
+          temp = (temp * 9) / 5 + units.celsius;
+        } else if (tUnit === "kelvin") {
+          temp = temp + units.kelvin;
+        }
+        break;
+
+      case "kelvin":
+        if (tUnit === "fahrenheit") {
+          temp = (kelvinToCelsius(temp) * 9) / 5 + units.celsius;
+        } else if (tUnit === "celsius") {
+          temp = kelvinToCelsius(temp);
+        }
+        break;
+    }
+  }
+
+  return temp.toFixed(3);
+}
+
+function fahrenheitToCelsius(temp) {
+  return ((temp - units.celsius) * 5) / 9;
+}
+
+function kelvinToCelsius(temp) {
+  return temp - units.kelvin;
+}
